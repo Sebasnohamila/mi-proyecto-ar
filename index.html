@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Video Fix + Gestures</title>
+    <title>AR Video Centrado + 3D</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
     <style>
+        /* Estilos de carga y botones */
         .arjs-loader {
             height: 100%; width: 100%; position: absolute; top: 0; left: 0;
             background-color: rgba(0, 0, 0, 0.8); z-index: 9999;
@@ -15,10 +16,6 @@
         }
         .arjs-loader div {
             text-align: center; font-size: 1.25em; color: white; font-family: sans-serif;
-        }
-        #debug-console {
-            position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.5); 
-            color: yellow; z-index: 10000; padding: 5px; pointer-events: none;
         }
         #start-button {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -29,7 +26,6 @@
     </style>
 
     <script>
-        // Componente para detectar gestos (toques en pantalla)
         AFRAME.registerComponent("gesture-detector", {
             schema: { element: { default: "" } },
             init: function() {
@@ -50,22 +46,6 @@
                 const currentState = this.getTouchState(event);
                 const previousState = this.internalState.previousState;
                 const gestureContinues = previousState && currentState && currentState.touchCount == previousState.touchCount;
-                const gestureEnded = previousState && !gestureContinues;
-                const gestureStarted = currentState && !gestureContinues;
-
-                if (gestureEnded) {
-                    const eventName = this.getEventPrefix(previousState.touchCount) + "fingerend";
-                    this.el.emit(eventName, previousState);
-                    this.internalState.previousState = null;
-                }
-                if (gestureStarted) {
-                    currentState.startTime = performance.now();
-                    currentState.startPosition = currentState.position;
-                    currentState.startSpread = currentState.spread;
-                    const eventName = this.getEventPrefix(currentState.touchCount) + "fingerstart";
-                    this.el.emit(eventName, currentState);
-                    this.internalState.previousState = currentState;
-                }
                 if (gestureContinues) {
                     const eventDetail = {
                         positionChange: { x: currentState.position.x - previousState.position.x, y: currentState.position.y - previousState.position.y },
@@ -73,10 +53,12 @@
                     if (currentState.spread) {
                         eventDetail.spreadChange = currentState.spread - previousState.spread;
                     }
-                    const eventName = this.getEventPrefix(currentState.touchCount) + "fingermove";
+                    const eventName = (currentState.touchCount === 1 ? "one" : "two") + "fingermove";
                     this.el.emit(eventName, eventDetail);
                     this.internalState.previousState = currentState;
                 }
+                if (currentState && !gestureContinues) { this.internalState.previousState = currentState; }
+                if (!currentState) { this.internalState.previousState = null; }
             },
             getTouchState: function(event) {
                 if (event.touches.length === 0) return null;
@@ -91,55 +73,38 @@
                     touchState.spread = spread;
                 }
                 return touchState;
-            },
-            getEventPrefix: function(touchCount) {
-                const numberNames = ["one", "two", "three", "many"];
-                return numberNames[Math.min(touchCount, 4) - 1];
             }
         });
 
-        // Componente para manejar la respuesta (Rotar y Escalar)
         AFRAME.registerComponent("gesture-handler", {
-            schema: {
-                enabled: { default: true },
-                rotationFactor: { default: 5 },
-                minScale: { default: 5 }, // Ajusta según el tamaño de tu modelo
-                maxScale: { default: 100 },
-            },
+            schema: { minScale: { default: 1 }, maxScale: { default: 100 } },
             init: function() {
                 this.handleScale = this.handleScale.bind(this);
                 this.handleRotation = this.handleRotation.bind(this);
                 this.isVisible = false;
                 this.initialScale = this.el.object3D.scale.clone();
                 this.scaleFactor = 1;
-
-                this.el.sceneEl.addEventListener("markerFound", (e) => { this.isVisible = true; });
-                this.el.sceneEl.addEventListener("markerLost", (e) => { this.isVisible = false; });
+                this.el.sceneEl.addEventListener("markerFound", () => { this.isVisible = true; });
+                this.el.sceneEl.addEventListener("markerLost", () => { this.isVisible = false; });
             },
             update: function() {
-                if (this.data.enabled) {
-                    this.el.sceneEl.addEventListener("onefingermove", this.handleRotation);
-                    this.el.sceneEl.addEventListener("twofingermove", this.handleScale);
-                } else {
-                    this.el.sceneEl.removeEventListener("onefingermove", this.handleRotation);
-                    this.el.sceneEl.removeEventListener("twofingermove", this.handleScale);
-                }
+                this.el.sceneEl.addEventListener("onefingermove", this.handleRotation);
+                this.el.sceneEl.addEventListener("twofingermove", this.handleScale);
             },
             handleRotation: function(event) {
                 if (this.isVisible) {
-                    this.el.object3D.rotation.y += event.detail.positionChange.x * this.data.rotationFactor * 2 * Math.PI / 1000;
-                    // Descomenta la siguiente línea si quieres rotación vertical también:
-                    // this.el.object3D.rotation.x += event.detail.positionChange.y * this.data.rotationFactor * 2 * Math.PI / 1000;
+                    this.el.object3D.rotation.y += event.detail.positionChange.x * 0.01; 
                 }
             },
             handleScale: function(event) {
                 if (this.isVisible) {
                     this.scaleFactor *= 1 + event.detail.spreadChange / event.detail.startSpread;
-                    this.scaleFactor = Math.min(Math.max(this.scaleFactor, this.data.minScale / 50), this.data.maxScale / 50); // Ajuste relativo
-                    
-                    this.el.object3D.scale.x = this.scaleFactor * this.initialScale.x;
-                    this.el.object3D.scale.y = this.scaleFactor * this.initialScale.y;
-                    this.el.object3D.scale.z = this.scaleFactor * this.initialScale.z;
+                    this.scaleFactor = Math.min(Math.max(this.scaleFactor, this.data.minScale / 50), this.data.maxScale / 50);
+                    this.el.object3D.scale.set(
+                        this.scaleFactor * this.initialScale.x,
+                        this.scaleFactor * this.initialScale.y,
+                        this.scaleFactor * this.initialScale.z
+                    );
                 }
             }
         });
@@ -148,13 +113,10 @@
 
 <body style="margin : 0px; overflow: hidden;">
 
-    <div id="debug-console">Estado: Cargando sistema...</div>
-
     <div class="arjs-loader">
-        <div>Cargando experiencia AR...</div>
+        <div>Cargando...</div>
     </div>
-
-    <button id="start-button">▶ ACTIVAR VIDEO</button>
+    <button id="start-button">▶ INICIAR</button>
 
     <a-scene
         vr-mode-ui="enabled: false;"
@@ -164,15 +126,7 @@
         gesture-detector>
 
         <a-assets>
-            <video id="mivideo" 
-                src="./assets/video.mp4" 
-                preload="auto" 
-                loop 
-                muted 
-                playsinline 
-                webkit-playsinline 
-                crossorigin="anonymous">
-            </video>
+            <video id="mivideo" src="./assets/video.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
         </a-assets>
 
         <a-nft
@@ -180,15 +134,15 @@
             type="nft"
             url="https://sebasnohamila.github.io/mi-proyecto-ar/assets/marca"
             smooth="true"
-            smoothCount="20"
-            smoothTolerance=".01"
-            smoothThreshold="5">
-            
+            smoothCount="30"
+            smoothTolerance="0.01"
+            smoothThreshold="10">
+
             <a-plane
                 id="video-plane"
                 src="#mivideo"
                 width="200" height="112"
-                position="0 0 -100"
+                position="0 0 0"
                 rotation="-90 0 0"
                 material="shader: flat; side: double;">
             </a-plane>
@@ -197,23 +151,18 @@
                 id="modelo-3d"
                 gltf-model="./assets/modelo.glb"
                 scale="50 50 50"
-                position="100 0 -200"
+                position="0 0 50"
                 rotation="-90 0 0"
                 class="clickable"
-                gesture-handler="minScale: 10; maxScale: 200; rotationFactor: 5">
+                gesture-handler="minScale: 10; maxScale: 200;">
             </a-entity>
             
         </a-nft>
         
-        <a-entity camera raycaster="objects: .clickable" cursor="rayOrigin: mouse"></a-entity>
+        <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        function log(text) {
-            document.getElementById('debug-console').innerText = "Estado: " + text;
-            console.log(text);
-        }
-
         window.addEventListener('load', () => {
             const video = document.getElementById('mivideo');
             const startBtn = document.getElementById('start-button');
@@ -221,33 +170,26 @@
             const nft = document.getElementById('nft-marker');
             const plane = document.getElementById('video-plane');
 
-            // Muestra el botón cuando la página carga
             setTimeout(() => {
                 loader.style.display = 'none';
                 startBtn.style.display = 'block';
-                log("Listo. Pulsa el botón rojo.");
-            }, 3000);
+            }, 2500);
 
             startBtn.addEventListener('click', () => {
                 startBtn.style.display = 'none';
                 video.muted = false;
-                video.play().then(() => {
-                    log("Video iniciado. Apunta a la imagen.");
-                }).catch(e => {
-                    log("Error al reproducir: " + e);
-                });
+                video.play();
             });
 
             nft.addEventListener('markerFound', () => {
-                log("¡Imagen encontrada!");
-                if (video.paused) { video.play(); }
-            });
-
-            nft.addEventListener('markerLost', () => {
-                log("Buscando imagen...");
-                video.pause();
+                if (video.paused) video.play();
             });
             
+            nft.addEventListener('markerLost', () => {
+                video.pause();
+            });
+
+            // Hack para refrescar textura de video en móviles
             video.addEventListener('play', () => {
                 const mesh = plane.getObject3D('mesh');
                 if (mesh && mesh.material && mesh.material.map) {
