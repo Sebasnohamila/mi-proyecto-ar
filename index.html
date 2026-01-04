@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Video Debug</title>
-    <meta charset="utf-8">
+    <title>AR Video Fix</title>
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93960954db63f2633c9363/dist/aframe-master.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-
+    
     <style>
         .arjs-loader {
             height: 100%; width: 100%; position: absolute; top: 0; left: 0;
@@ -17,10 +15,6 @@
         }
         .arjs-loader div {
             text-align: center; font-size: 1.25em; color: white; font-family: sans-serif;
-        }
-        #debug-console {
-            position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.5); 
-            color: yellow; z-index: 10000; padding: 5px; pointer-events: none;
         }
         #start-button {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -33,10 +27,8 @@
 
 <body style="margin : 0px; overflow: hidden;">
 
-    <div id="debug-console">Estado: Iniciando...</div>
-
     <div class="arjs-loader">
-        <div>Cargando... esto puede tardar unos segundos.</div>
+        <div>Cargando experiencia...</div>
     </div>
 
     <button id="start-button">▶ TOCAR PARA INICIAR</button>
@@ -48,13 +40,20 @@
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
         <a-assets>
-            <video id="mivideo" src="./assets/video.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"></video>
+            <video id="mivideo" 
+                src="./assets/video.mp4" 
+                preload="auto" 
+                loop="true" 
+                playsinline 
+                webkit-playsinline 
+                crossorigin="anonymous">
+            </video>
         </a-assets>
 
         <a-nft
             id="nft-marker"
             type="nft"
-       url="https://sebasnohamila.github.io/mi-proyecto-ar/assets/marca"
+            url="https://sebasnohamila.github.io/mi-proyecto-ar/assets/marca" 
             smooth="true"
             smoothCount="10"
             smoothTolerance=".01"
@@ -62,70 +61,55 @@
             
             <a-video 
                 src="#mivideo" 
-                width="200" height="112"
+                width="160" height="90"
                 position="0 0 -100" 
-                rotation="-90 0 0">
+                rotation="-90 0 0"
+                material="shader: flat; opacity: 1;">
             </a-video>
 
             <a-entity 
                 gltf-model="./assets/modelo.glb"
                 scale="50 50 50"
-                position="100 0 -200"
+                position="100 0 -100"
                 rotation="-90 0 0">
             </a-entity>
             
         </a-nft>
         
+        <a-entity light="type: ambient; color: #FFF; intensity: 1.5"></a-entity>
         <a-entity camera></a-entity>
     </a-scene>
-<script>
-        // Sistema simple de depuración en pantalla
-        function log(text) {
-            var debugConsole = document.getElementById('debug-console');
-            if(debugConsole) debugConsole.innerText = "Estado: " + text;
-            console.log(text);
-        }
 
+    <script>
         window.addEventListener('load', () => {
-            log("Ventana cargada. Iniciando...");
-
             const video = document.getElementById('mivideo');
             const startBtn = document.getElementById('start-button');
             const loader = document.querySelector('.arjs-loader');
             const nft = document.getElementById('nft-marker');
 
-            // --- ESTA ES LA PARTE IMPORTANTE ---
-            // Forzamos a que la pantalla de carga desaparezca a los 5 segundos SIEMPRE.
-            // Esto evita que se quede la pantalla en blanco si AR.js se tarda.
+            // Forzar cierre de loader a los 4s
             setTimeout(() => {
                 if(loader) loader.style.display = 'none';
                 if(startBtn) startBtn.style.display = 'block';
-                log("Interfaz lista (Forzada). Toca el botón.");
-            }, 5000); 
+            }, 4000);
 
-            // Evento cuando se detecta la imagen
-            nft.addEventListener('markerFound', () => {
-                log("¡Imagen encontrada! ▶ Play video");
-                if(video) video.play();
-            });
-
-            // Evento cuando se pierde la imagen
-            nft.addEventListener('markerLost', () => {
-                log("Imagen perdida. ⏸ Pause video");
-                if(video) video.pause();
-            });
-
-            // Botón de inicio
+            // Click inicial para desbloquear audio y video
             startBtn.addEventListener('click', () => {
                 startBtn.style.display = 'none';
-                if(video) {
-                    video.play();
-                    video.pause(); // Truco para activar audio en iOS/Android
-                }
-                log("Cámara activa. Apunta a tu imagen.");
+                video.play();
+                video.pause(); 
+            });
+
+            // Detectar imagen
+            nft.addEventListener('markerFound', () => {
+                video.play();
+            });
+
+            // Perder imagen
+            nft.addEventListener('markerLost', () => {
+                video.pause();
             });
         });
     </script>
-    
 </body>
 </html>
