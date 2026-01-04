@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Video Fix</title>
+    <title>AR Video y 3D</title>
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     
     <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93960954db63f2633c9363/dist/aframe-master.min.js"></script>
@@ -18,9 +18,9 @@
         }
         #start-button {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            padding: 15px 30px; background: #ef2d5e; color: white;
-            border: none; border-radius: 5px; z-index: 10001; display: none;
-            font-size: 18px; font-weight: bold; cursor: pointer;
+            padding: 10px 20px; background: #ef2d5e; color: white;
+            border: none; border-radius: 5px; z-index: 10000; display: none;
+            font-size: 16px; cursor: pointer;
         }
     </style>
 </head>
@@ -28,10 +28,10 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Cargando experiencia...</div>
+        <div>Cargando realidad aumentada...</div>
     </div>
 
-    <button id="start-button">▶ TOCAR PARA INICIAR</button>
+    <button id="start-button">TOCA AQUÍ PARA INICIAR</button>
 
     <a-scene
         vr-mode-ui="enabled: false;"
@@ -40,18 +40,10 @@
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
         <a-assets>
-            <video id="mivideo" 
-               src="./assets/video.mp4"
-                preload="auto" 
-                loop="true" 
-                playsinline 
-                webkit-playsinline 
-                crossorigin="anonymous">
-            </video>
+            <video id="mivideo" src="./assets/video.mp4" preload="auto" loop="true" playsinline webkit-playsinline crossorigin="anonymous"></video>
         </a-assets>
 
         <a-nft
-            id="nft-marker"
             type="nft"
             url="https://sebasnohamila.github.io/mi-proyecto-ar/assets/marca" 
             smooth="true"
@@ -63,8 +55,7 @@
                 src="#mivideo" 
                 width="160" height="90"
                 position="0 0 -100" 
-                rotation="-90 0 0"
-                material="shader: flat; opacity: 1;">
+                rotation="-90 0 0">
             </a-video>
 
             <a-entity 
@@ -76,38 +67,31 @@
             
         </a-nft>
         
-        <a-entity light="type: ambient; color: #FFF; intensity: 1.5"></a-entity>
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
+        // Script para manejar el audio y el video
         window.addEventListener('load', () => {
             const video = document.getElementById('mivideo');
             const startBtn = document.getElementById('start-button');
             const loader = document.querySelector('.arjs-loader');
-            const nft = document.getElementById('nft-marker');
 
-            // Forzar cierre de loader a los 4s
+            // Cuando AR.js detecta que cargó, mostramos el botón
+            // (En NFT a veces tarda, así que lo mostramos tras unos segundos por seguridad)
             setTimeout(() => {
-                if(loader) loader.style.display = 'none';
-                if(startBtn) startBtn.style.display = 'block';
-            }, 4000);
+                loader.style.display = 'none';
+                startBtn.style.display = 'block';
+            }, 3000); // 3 segundos de carga simulada o espera a evento 'arjs-nft-loaded'
 
-            // Click inicial para desbloquear audio y video
             startBtn.addEventListener('click', () => {
                 startBtn.style.display = 'none';
+                video.play(); // Esto habilita el audio
+                video.pause(); // Pausamos inmediatamente hasta que se detecte la imagen
+                
+                // Opcional: Dejarlo corriendo si prefieres
                 video.play();
-                video.pause(); 
-            });
-
-            // Detectar imagen
-            nft.addEventListener('markerFound', () => {
-                video.play();
-            });
-
-            // Perder imagen
-            nft.addEventListener('markerLost', () => {
-                video.pause();
+                video.muted = false;
             });
         });
     </script>
