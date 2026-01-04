@@ -78,48 +78,54 @@
         
         <a-entity camera></a-entity>
     </a-scene>
-
-    <script>
+<script>
         // Sistema simple de depuración en pantalla
         function log(text) {
-            document.getElementById('debug-console').innerText = "Estado: " + text;
+            var debugConsole = document.getElementById('debug-console');
+            if(debugConsole) debugConsole.innerText = "Estado: " + text;
             console.log(text);
         }
 
         window.addEventListener('load', () => {
-            log("Ventana cargada. Esperando AR.js...");
+            log("Ventana cargada. Iniciando...");
 
             const video = document.getElementById('mivideo');
             const startBtn = document.getElementById('start-button');
             const loader = document.querySelector('.arjs-loader');
             const nft = document.getElementById('nft-marker');
 
+            // --- ESTA ES LA PARTE IMPORTANTE ---
+            // Forzamos a que la pantalla de carga desaparezca a los 5 segundos SIEMPRE.
+            // Esto evita que se quede la pantalla en blanco si AR.js se tarda.
+            setTimeout(() => {
+                if(loader) loader.style.display = 'none';
+                if(startBtn) startBtn.style.display = 'block';
+                log("Interfaz lista (Forzada). Toca el botón.");
+            }, 5000); 
+
             // Evento cuando se detecta la imagen
             nft.addEventListener('markerFound', () => {
-                log("¡Imagen detectada! Reproduciendo video...");
-                video.play();
+                log("¡Imagen encontrada! ▶ Play video");
+                if(video) video.play();
             });
 
             // Evento cuando se pierde la imagen
             nft.addEventListener('markerLost', () => {
-                log("Imagen perdida.");
-                video.pause();
+                log("Imagen perdida. ⏸ Pause video");
+                if(video) video.pause();
             });
 
-            // Simulación de carga completa (AR.js a veces no dispara el evento load correctamente)
-            setTimeout(() => {
-                loader.style.display = 'none';
-                startBtn.style.display = 'block';
-                log("Listo. Toca el botón.");
-            }, 4000);
-
+            // Botón de inicio
             startBtn.addEventListener('click', () => {
                 startBtn.style.display = 'none';
-                video.play();
-                video.pause(); 
-                log("Audio desbloqueado. Apunta a la imagen.");
+                if(video) {
+                    video.play();
+                    video.pause(); // Truco para activar audio en iOS/Android
+                }
+                log("Cámara activa. Apunta a tu imagen.");
             });
         });
     </script>
+    
 </body>
 </html>
