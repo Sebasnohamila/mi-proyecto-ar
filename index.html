@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR Video Debug</title>
+    <title>AR Video Fix</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
     <style>
@@ -33,22 +31,30 @@
 
 <body style="margin : 0px; overflow: hidden;">
 
-    <div id="debug-console">Estado: Iniciando...</div>
+    <div id="debug-console">Estado: Cargando sistema...</div>
 
     <div class="arjs-loader">
-        <div>Cargando... esto puede tardar unos segundos.</div>
+        <div>Cargando experiencia AR...</div>
     </div>
 
-    <button id="start-button">▶ TOCAR PARA INICIAR</button>
+    <button id="start-button">▶ ACTIVAR VIDEO</button>
 
     <a-scene
         vr-mode-ui="enabled: false;"
-        renderer="logarithmicDepthBuffer: true;"
+        renderer="logarithmicDepthBuffer: true; alpha: true; precision: medium;"
         embedded
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
         <a-assets>
-            <video id="mivideo" src="https://sebasnohamila.github.io/mi-proyecto-ar/assets/video.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"></video>
+            <video id="mivideo" 
+                src="https://sebasnohamila.github.io/mi-proyecto-ar/assets/video.mp4" 
+                preload="auto" 
+                loop 
+                muted 
+                playsinline 
+                webkit-playsinline 
+                crossorigin="anonymous">
+            </video>
         </a-assets>
 
         <a-nft
@@ -60,12 +66,14 @@
             smoothTolerance=".01"
             smoothThreshold="5">
             
-            <a-video 
-                src="#mivideo" 
+            <a-plane
+                id="video-plane"
+                src="#mivideo"
                 width="200" height="112"
-                position="0 0 -100" 
-                rotation="-90 0 0">
-            </a-video>
+                position="0 0 -100"
+                rotation="-90 0 0"
+                material="shader: flat; side: double;">
+            </a-plane>
 
             <a-entity 
                 gltf-model="./assets/modelo.glb"
@@ -80,44 +88,58 @@
     </a-scene>
 
     <script>
-        // Sistema simple de depuración en pantalla
         function log(text) {
             document.getElementById('debug-console').innerText = "Estado: " + text;
             console.log(text);
         }
 
         window.addEventListener('load', () => {
-            log("Ventana cargada. Esperando AR.js...");
-
             const video = document.getElementById('mivideo');
             const startBtn = document.getElementById('start-button');
             const loader = document.querySelector('.arjs-loader');
             const nft = document.getElementById('nft-marker');
+            const plane = document.getElementById('video-plane');
 
-            // Evento cuando se detecta la imagen
-            nft.addEventListener('markerFound', () => {
-                log("¡Imagen detectada! Reproduciendo video...");
-                video.play();
-            });
-
-            // Evento cuando se pierde la imagen
-            nft.addEventListener('markerLost', () => {
-                log("Imagen perdida.");
-                video.pause();
-            });
-
-            // Simulación de carga completa (AR.js a veces no dispara el evento load correctamente)
+            // Muestra el botón cuando la página carga (esperamos 3s por si acaso)
             setTimeout(() => {
                 loader.style.display = 'none';
                 startBtn.style.display = 'block';
-                log("Listo. Toca el botón.");
-            }, 4000);
+                log("Listo. Pulsa el botón rojo.");
+            }, 3000);
 
+            // CAMBIO 3: Lógica de interacción de usuario (User Interaction)
             startBtn.addEventListener('click', () => {
                 startBtn.style.display = 'none';
-                video.play();
-                video.pause(); 
-                log("Audio desbloqueado. Apunta a la imagen.");
+                
+                // Secuencia mágica para móviles:
+                video.muted = false; // Activamos audio
+                video.play().then(() => {
+                    log("Video iniciado. Apunta a la imagen.");
+                }).catch(e => {
+                    log("Error al reproducir: " + e);
+                });
+            });
+
+            // Control de detección
+            nft.addEventListener('markerFound', () => {
+                log("¡Imagen encontrada!");
+                if (video.paused) {
+                    video.play(); 
+                }
+            });
+
+            nft.addEventListener('markerLost', () => {
+                log("Buscando imagen...");
+                video.pause();
+            });
+            
+            // CAMBIO 4: Hack para forzar actualización de textura en móviles
+            video.addEventListener('play', () => {
+                // Forzamos a Three.js a refrescar el material del plano
+                const mesh = plane.getObject3D('mesh');
+                if (mesh && mesh.material && mesh.material.map) {
+                    mesh.material.map.needsUpdate = true;
+                }
             });
         });
     </script>
