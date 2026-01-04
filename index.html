@@ -1,129 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>AR Video Debug</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AR Video</title>
 
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1.2.0/dist/aframe-master.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-
+    
     <style>
+        html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
         .arjs-loader {
-            height: 100%; width: 100%; position: absolute; top: 0; left: 0;
-            background-color: rgba(0, 0, 0, 0.8); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
+            height: 100%; width: 100%; position: absolute;
+            top: 0; left: 0; background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
         }
-        .arjs-loader div {
-            text-align: center; font-size: 1.25em; color: white; font-family: sans-serif;
-        }
-        #debug-console {
-            position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.5); 
-            color: yellow; z-index: 10000; padding: 5px; pointer-events: none;
-        }
-        #start-button {
+        .arjs-loader div { text-align: center; font-size: 1.25em; color: white; font-family: sans-serif; }
+        #start-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            padding: 15px 30px; background: #ef2d5e; color: white;
-            border: none; border-radius: 5px; z-index: 10001; display: none;
-            font-size: 18px; font-weight: bold; cursor: pointer;
+            padding: 10px 20px; background: #ef2d5e; color: white; 
+            border: none; border-radius: 5px; z-index: 10000; font-size: 16px;
         }
     </style>
 </head>
 
-<body style="margin : 0px; overflow: hidden;">
-
-    <div id="debug-console">Estado: Iniciando...</div>
-
-    <div class="arjs-loader">
-        <div>Cargando... esto puede tardar unos segundos.</div>
-    </div>
-
-    <button id="start-button">▶ TOCAR PARA INICIAR</button>
+<body>
+    <div class="arjs-loader"><div>Cargando...</div></div>
+    <button id="start-btn">Tocar para Iniciar Video</button>
 
     <a-scene
         vr-mode-ui="enabled: false;"
         renderer="logarithmicDepthBuffer: true;"
-        embedded
         arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
         <a-assets>
-            <video id="mivideo" src="https://sebasnohamila.github.io/mi-proyecto-ar/assets/video.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"></video>
+            <video 
+                id="mi-video" 
+                src="./assets/video.mp4" 
+                preload="auto" 
+                loop="true" 
+                crossorigin="anonymous"
+                muted
+                playsinline 
+                webkit-playsinline>
+            </video>
         </a-assets>
 
-
-        
         <a-nft
-            id="nft-marker"
             type="nft"
-           url="https://sebasnohamila.github.io/mi-proyecto-ar/assets/mi-imagen"
-
-            
+            url="https://sebasnohamila.github.io/mi-proyecto-ar/assets/mi-imagen"
             smooth="true"
             smoothCount="10"
             smoothTolerance=".01"
-            smoothThreshold="5">
-            
-            <a-video 
-                src="#mivideo" 
-                width="200" height="112"
-                position="0 0 -100" 
-                rotation="-90 0 0">
-            </a-video>
+            smoothThreshold="5"
+            id="nft-marker">
 
-            <a-entity 
-                gltf-model="./assets/modelo.glb"
-                scale="50 50 50"
-                position="100 0 -200"
-                rotation="-90 0 0">
+            <a-entity>
+                
+                <a-plane
+                    src="#mi-video"
+                    width="4" 
+                    height="2.25"
+                    position="50 0 -200"
+                    rotation="-90 0 0"
+                    scale="50 50 50"
+                    material="shader: flat;">
+                </a-plane>
+
             </a-entity>
-            
         </a-nft>
-        
+
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        // Sistema simple de depuración en pantalla
-        function log(text) {
-            document.getElementById('debug-console').innerText = "Estado: " + text;
-            console.log(text);
-        }
-
         window.addEventListener('load', () => {
-            log("Ventana cargada. Esperando AR.js...");
-
-            const video = document.getElementById('mivideo');
-            const startBtn = document.getElementById('start-button');
+            const marker = document.querySelector('#nft-marker');
+            const video = document.querySelector('#mi-video');
+            const startBtn = document.getElementById('start-btn');
             const loader = document.querySelector('.arjs-loader');
-            const nft = document.getElementById('nft-marker');
 
-            // Evento cuando se detecta la imagen
-            nft.addEventListener('markerFound', () => {
-                log("¡Imagen detectada! Reproduciendo video...");
-                video.play();
-            });
-
-            // Evento cuando se pierde la imagen
-            nft.addEventListener('markerLost', () => {
-                log("Imagen perdida.");
-                video.pause();
-            });
-
-            // Simulación de carga completa (AR.js a veces no dispara el evento load correctamente)
+            // Timeout de seguridad para quitar cargador
             setTimeout(() => {
-                loader.style.display = 'none';
-                startBtn.style.display = 'block';
-                log("Listo. Toca el botón.");
-            }, 4000);
+                if(loader && loader.style.display !== 'none') loader.style.display = 'none';
+            }, 5000);
 
+            // BOTÓN DE INICIO (CRUCIAL PARA QUE EL VIDEO SE VEA)
             startBtn.addEventListener('click', () => {
-                startBtn.style.display = 'none';
+                if(loader) loader.style.display = 'none';
+                
+                // 1. Play inicial (necesario para activar la textura)
                 video.play();
-                video.pause(); 
-                log("Audio desbloqueado. Apunta a la imagen.");
+                video.pause(); // Pausamos inmediatamente
+                video.currentTime = 0; // Reiniciamos
+                
+                // 2. Activamos volumen
+                video.muted = false;
+                
+                startBtn.style.display = 'none';
+                alert("Listo. Apunta a la imagen.");
+            });
+
+            // CUANDO ENCUENTRA LA IMAGEN
+            marker.addEventListener('markerFound', () => {
+                console.log("Play Video");
+                video.play();
+            });
+
+            // CUANDO PIERDE LA IMAGEN
+            marker.addEventListener('markerLost', () => {
+                console.log("Pause Video");
+                video.pause();
             });
         });
     </script>
 </body>
 </html>
+           
