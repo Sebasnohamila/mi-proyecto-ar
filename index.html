@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2113.6">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #000000; -webkit-text-stroke: #000000}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #000000; -webkit-text-stroke: #000000; min-height: 14.0px}
+    span.s1 {font-kerning: none}
+  </style>
+</head>
+<body>
+<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
+<p class="p1"><span class="s1">&lt;html&gt;</span></p>
+<p class="p1"><span class="s1">&lt;head&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;title&gt;AR Video y 3D&lt;/title&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"&gt;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93960954db63f2633c9363/dist/aframe-master.min.js"&gt;&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"&gt;&lt;/script&gt;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;style&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.arjs-loader {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 100%; width: 100%; position: absolute; top: 0; left: 0;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background-color: rgba(0, 0, 0, 0.8); z-index: 9999;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex; justify-content: center; align-items: center;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.arjs-loader div {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>text-align: center; font-size: 1.25em; color: white; font-family: sans-serif;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>#start-button {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 10px 20px; background: #ef2d5e; color: white;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border: none; border-radius: 5px; z-index: 10000; display: none;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 16px; cursor: pointer;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">&lt;body style="margin : 0px; overflow: hidden;"&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="arjs-loader"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div&gt;Cargando realidad aumentada...&lt;/div&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button id="start-button"&gt;TOCA AQUÍ PARA INICIAR&lt;/button&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;a-scene</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>vr-mode-ui="enabled: false;"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>renderer="logarithmicDepthBuffer: true;"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>embedded</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;a-assets&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;video id="mivideo" src="./assets/video.mp4" preload="auto" loop="true" playsinline webkit-playsinline crossorigin="anonymous"&gt;&lt;/video&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/a-assets&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;a-nft</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>type="nft"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>url="./assets/mi-imagen"<span class="Apple-converted-space"> </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>smooth="true"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>smoothCount="10"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>smoothTolerance=".01"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>smoothThreshold="5"&gt;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;a-video<span class="Apple-converted-space"> </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>src="#mivideo"<span class="Apple-converted-space"> </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>width="160" height="90"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>position="0 0 -100"<span class="Apple-converted-space"> </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>rotation="-90 0 0"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/a-video&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;a-entity<span class="Apple-converted-space"> </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>gltf-model="./assets/modelo.glb"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>scale="50 50 50"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>position="100 0 -100"</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>rotation="-90 0 0"&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/a-entity&gt;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/a-nft&gt;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">        </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;a-entity camera&gt;&lt;/a-entity&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/a-scene&gt;</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script&gt;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>// Script para manejar el audio y el video</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>window.addEventListener('load', () =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const video = document.getElementById('mivideo');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const startBtn = document.getElementById('start-button');</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>const loader = document.querySelector('.arjs-loader');</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>// Cuando AR.js detecta que cargó, mostramos el botón</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>// (En NFT a veces tarda, así que lo mostramos tras unos segundos por seguridad)</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>setTimeout(() =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>loader.style.display = 'none';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>startBtn.style.display = 'block';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}, 3000); // 3 segundos de carga simulada o espera a evento 'arjs-nft-loaded'</span></p>
+<p class="p2"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>startBtn.addEventListener('click', () =&gt; {</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>startBtn.style.display = 'none';</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>video.play(); // Esto habilita el audio</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>video.pause(); // Pausamos inmediatamente hasta que se detecte la imagen</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>// Opcional: Dejarlo corriendo si prefieres</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>video.play();</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>video.muted = false;</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>});</span></p>
+<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
+<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+</body>
+</html>
